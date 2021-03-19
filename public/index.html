@@ -1,1 +1,30 @@
-hello
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>카웍화상회의 위한 데이터 수집용 화면 녹화기</title>
+    </head>
+    <body>
+        <video id="inputVideo" style="width:640;height:480; background-color: black;"></video>
+        <div>
+            주의사항
+        </div>
+        <button id="accept">동의 및 녹화</button>
+    </body>
+    <script>
+        const v= document.getElementById("inputVideo");
+        document.getElementById("accept").onclick = async () =>{
+            try{
+                stream= await navigator.mediaDevices.getUserMedia({
+                    audio:true,
+                    video: {
+                        width:640, height:480
+                    }
+                });
+                v.srcObject= stream;
+                v.play();
+            }catch(err){
+                console.err(err);
+            }
+        }
+    </script>
+</html>
