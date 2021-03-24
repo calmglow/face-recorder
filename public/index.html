@@ -1,18 +1,27 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>카웍화상회의 위한 데이터 수집용 화면 녹화기</title>
+        <title>데이터 수집용 화면 녹화기</title>
     </head>
     <body>
+        <h1>배경 Blur를 위한 샘플데이터 수집용 녹화 페이지</h1>
         <video id="inputVideo" style="width:640;height:480; background-color: black;"></video>
         <div>
-            주의사항
+            <li>용도: blah blah blah</li>
+            <li>보존기간: 2022.04.30</li>
         </div>
         <button id="accept">동의 및 녹화</button>
+        <video id="recordedVideo" controls />
     </body>
     <script>
         const v= document.getElementById("inputVideo");
-        document.getElementById("accept").onclick = async () =>{
+        const recordedVideo= document.getElementById("recordedVideo");
+        const timeLimit= 10;
+        let chunks= [];
+        let mediaRecorder;
+        let timerId, currentTime=0;
+        const button= document.getElementById("accept");
+        button.onclick = async () =>{
             try{
                 stream= await navigator.mediaDevices.getUserMedia({
                     audio:true,
@@ -22,9 +31,44 @@
                 });
                 v.srcObject= stream;
                 v.play();
+                mediaRecorder= new MediaRecorder(stream);
+                mediaRecorder.ondataavailable= ondata;
+                mediaRecorder.onstop= onstop;
+                timerId= setTimeout(timeoutCheck, 1000);
+                mediaRecorder.start();
             }catch(err){
                 console.err(err);
             }
+            
+        }
+        function onstop(e){
+            console.log('onstop');
+            const blob= new Blob(chunks, {'type': 'video/webm'});
+            chunks= [];
+            const videoURL= URL.createObjectURL(blob);
+            recordedVideo.src= videoURL;
+            const sendButton= document.createElement('button');
+            sendButton.id= 'sendButton';
+            sendButton.textContent='영상 확인 후 전송';
+            document.body.appendChild(sendButton);
+        }
+        function ondata(e){
+            console.log('ondata' + e)
+            chunks.push(e.data);
+        }
+        function finish(){
+            if (!mediaRecorder) return;
+            console.log('finish');
+            mediaRecorder.stop();
+        }
+        function timeoutCheck(){
+            button.textContent= ++currentTime;
+            if (currentTime>=timeLimit){
+                clearTimeout(timerId);
+                finish();
+                return;
+            }
+            timerId= setTimeout(timeoutCheck, 1000)
         }
     </script>
 </html>
