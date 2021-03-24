@@ -5,11 +5,18 @@
     </head>
     <body>
         <h1>배경 Blur를 위한 샘플데이터 수집용 녹화 페이지</h1>
-        <video id="inputVideo" style="width:640;height:480; background-color: black;"></video>
+        <div id='videoDiv' style="width:640;height:480;">
+            <video id="inputVideo" style="width:100%;height:100%; background-color: black;">
+            </video>
+            <div id='count' style='color:white;'>2</div>
+        </div>
+        
         <div>
             <li>용도: blah blah blah</li>
             <li>보존기간: 2022.04.30</li>
+            <input id='identity' value='' placeholder="이름: 회사에서 사용하는 이름"
         </div>
+        
         <button id="accept">동의 및 녹화</button>
         <video id="recordedVideo" controls />
     </body>
@@ -22,6 +29,10 @@
         let timerId, currentTime=0;
         const button= document.getElementById("accept");
         button.onclick = async () =>{
+            if(!document.getElementById('identity').value){
+                alert('이름을 입력해주세요');
+                return;
+            }
             try{
                 stream= await navigator.mediaDevices.getUserMedia({
                     audio:true,
